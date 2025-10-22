@@ -48,3 +48,11 @@ def delete(user_email: str, db: Session = Depends(get_db)):
         db.commit()
 
         return {"message":"User deleted successfully", "email":user_email}
+
+@app.get("/users/info/{user_name}")
+def info(user_name: str, db: Session = Depends(get_db)):
+    existing_user = db.query(User).filter(User.username == user_name).first()
+    if not existing_user:
+        raise HTTPException(status_code=404, detail="User Does Not Exist")
+
+    return {"message":"First name and email of:", "name":existing_user.name, "email":existing_user.email}
