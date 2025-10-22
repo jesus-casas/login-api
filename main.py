@@ -36,4 +36,15 @@ def signup(user: UserSignup, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_user)
 
-    return {"message":"User created siccessfully", "user":{"id":new_user.id, "email": new_user.email}}
+    return {"message":"User created successfully", "user":{"id":new_user.id, "email": new_user.email}}
+
+
+@app.delete("/users/{user_email}")
+def delete(user_email: str, db: Session = Depends(get_db)):
+        existing_user = db.query(User).filter(User.email == user_email).first()
+        if not existing_user:
+            raise HTTPException(status_code=404, detail="User Does Not Exists")
+        db.delete(existing_user)
+        db.commit()
+
+        return {"message":"User deleted successfully", "email":user_email}
