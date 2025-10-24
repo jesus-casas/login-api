@@ -23,6 +23,10 @@ class UserSignup(BaseModel):
     email: EmailStr
     password: str
 
+class UpdateUsername(BaseModel):
+    userID: int
+    oldUsername: str
+    newUsername: str
 
 @app.post("/signup")
 def signup(user: UserSignup, db: Session = Depends(get_db)):
@@ -56,3 +60,15 @@ def info(user_name: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="User Does Not Exist")
 
     return {"message":"First name and email of:", "name":existing_user.name, "email":existing_user.email}
+
+@app.put("/users/update/username")
+def update_username(user: UpdateUsername, db: Session = Depends(get_db)):
+    existing_user = db.query(User).filter(User.id == user.userID).first()
+    if not existing_user:
+        raise HTTPException(status_code=404, detail="User does not exist")
+    
+    existing_user.username == user.newUsername
+    db.commit()
+    db.refresh()
+
+    return {"message": f"{user.oldUsername} updated username to '{user.newUsername}'"}
