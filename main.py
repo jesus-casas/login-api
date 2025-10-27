@@ -61,7 +61,7 @@ def info(user_name: str, db: Session = Depends(get_db)):
 
     return {"message":"First name and email of:", "name":existing_user.name, "email":existing_user.email}
 
-@app.put("/users/update/username")
+@app.put("/users/update/username/{id}")
 def update_username(user: UpdateUsername, db: Session = Depends(get_db)):
     existing_user = db.query(User).filter(User.id == user.userID).first()
     if not existing_user:
@@ -69,6 +69,6 @@ def update_username(user: UpdateUsername, db: Session = Depends(get_db)):
     
     existing_user.username == user.newUsername
     db.commit()
-    db.refresh()
+    db.refresh(existing_user)
 
     return {"message": f"{user.oldUsername} updated username to '{user.newUsername}'"}
