@@ -28,9 +28,9 @@ class UpdateUsername(BaseModel):
     oldUsername: str
     newUsername: str
 
-@app.post("/signup")
+@app.post("/v1/signup")
 def signup(user: UserSignup, db: Session = Depends(get_db)):
-    # Base case: Check if user already exists
+    # Base case 1 : Check if user already exists
     existing_user = db.query(User).filter(User.email == user.email).first()
     if existing_user:
         raise HTTPException(status_code=400, detail="User Already Exists")
@@ -41,6 +41,16 @@ def signup(user: UserSignup, db: Session = Depends(get_db)):
     db.refresh(new_user)
 
     return {"message":"User created successfully", "user":{"id":new_user.id, "email": new_user.email}}
+
+
+
+
+
+
+
+
+
+
 
 
 @app.delete("/users/{user_email}")
@@ -67,7 +77,7 @@ def update_username(user: UpdateUsername, db: Session = Depends(get_db)):
     if not existing_user:
         raise HTTPException(status_code=404, detail="User does not exist")
     
-    existing_user.username == user.newUsername
+    existing_user.username = user.newUsername
     db.commit()
     db.refresh(existing_user)
 
