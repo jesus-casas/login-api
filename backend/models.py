@@ -1,5 +1,5 @@
 from sqlite3 import Time
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, DateTime, func
 from database import Base
 
 class User(Base):
@@ -12,3 +12,4 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     phonenumber = Column(Integer, unique=True, index=True, nullable=False)
     password = Column(String, nullable=False)
+
