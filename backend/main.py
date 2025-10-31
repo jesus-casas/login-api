@@ -1,6 +1,8 @@
+import token
 from fastapi import FastAPI, HTTPException, Depends
 from pydantic import BaseModel, EmailStr
 from sqlalchemy.orm import Session
+from sqlalchemy.sql.schema import default_is_clause_element
 from database import Base, engine, SessionLocal
 from models import User
 
@@ -23,6 +25,10 @@ class UserSignup(BaseModel):
     email: EmailStr
     password: str
 
+class UserLogin(BaseModel):
+    username: str
+    password: str
+
 class UpdateUsername(BaseModel):
     userID: int
     oldUsername: str
@@ -42,7 +48,27 @@ def signup(user: UserSignup, db: Session = Depends(get_db)):
 
     return {"message":"User created successfully", "user":{"id":new_user.id, "email": new_user.email}}
 
+@app.post("/v1/login")
+def login(user: UserLogin, db: Session = Depends(get_db)):
+    
+    existing_user = db.query(User).filter(User.username == user.username).first()
 
+    # Base case 1 user does not exist
+    if not existing_user:
+        raise HTTPException(status_code=400, detail=f"{user.username} does not exist")
+
+    # Case 2 User exists & 
+    if existing_user:
+        if user.password == existing_user.password:
+            return {"message":"User logged in Successfully", "user":{"name":existing_user.firstname,"email":existing_user.email}}
+            # send login token
+        # Case 3 user does exists && password is incorrect
+        raise HTTPException(status_code=400, detail="Password incorrect")
+    
+
+
+
+           
 
 
 
