@@ -58,13 +58,12 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
     if not existing_user:
         raise HTTPException(status_code=400, detail=f"{user.username} does not exist")
 
-    # Case 2 User exists & 
-    if existing_user:
-        if user.password == existing_user.password:
-            return {"message":"User logged in Successfully", "user":{"name":existing_user.firstname,"email":existing_user.email}}
-            # send login token
-        # Case 3 user does exists && password is incorrect
-        raise HTTPException(status_code=400, detail="Password incorrect")
+    # Case 2 User exists & Password is correct
+    if existing_user and user.password == existing_user.password:
+        # send login token
+        return {"message":"User logged in Successfully", "user":{"name":existing_user.firstname,"email":existing_user.email}}
+    # Case 3 user does exists && password is incorrect
+    raise HTTPException(status_code=400, detail="Password incorrect")
     
 
 
