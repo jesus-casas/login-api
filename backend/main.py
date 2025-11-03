@@ -41,7 +41,8 @@ def signup(user: UserSignup, db: Session = Depends(get_db)):
     existing_user = db.query(User).filter(User.email == user.email).first()
     if existing_user:
         raise HTTPException(status_code=400, detail="User Already Exists")
-
+    
+    # Case 2: User doesn't exist so we create a new user 
     new_user = User(firstname=user.firstname, lastname=user.lastname, username=user.username, email=user.email, password=user.password)
     db.add(new_user)
     db.commit()
@@ -59,7 +60,7 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail=f"{user.username} does not exist")
 
     # Case 2 User exists & Password is correct
-    if existing_user and user.password == existing_user.password:
+    if user.password == existing_user.password:
         # send login token
         return {"message":"User logged in Successfully", "user":{"name":existing_user.firstname,"email":existing_user.email}}
     # Case 3 user does exists && password is incorrect
@@ -78,7 +79,7 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
 
 
 
-
+# Test APIs -------------------------------------------------------------------------
 @app.delete("/users/{user_email}")
 def delete(user_email: str, db: Session = Depends(get_db)):
         existing_user = db.query(User).filter(User.email == user_email).first()
