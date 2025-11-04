@@ -20,11 +20,13 @@ def get_db():
         db.close()
 
 class UserSignup(BaseModel):
+    username: str
     firstname: str
     lastname: str
-    username: str
+    phonenumber: str
     email: EmailStr
     password: str
+    
 
 class UserLogin(BaseModel):
     username: str
@@ -43,7 +45,7 @@ def signup(user: UserSignup, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="User Already Exists")
     
     # Case 2: User doesn't exist so we create a new user 
-    new_user = User(firstname=user.firstname, lastname=user.lastname, username=user.username, email=user.email, password=user.password)
+    new_user = User(firstname=user.firstname, lastname=user.lastname, username=user.username, email=user.email, password=user.password, phonenumber=user.phonenumber)
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
