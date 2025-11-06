@@ -3,11 +3,15 @@ from fastapi import FastAPI, HTTPException, Depends
 from pydantic import BaseModel, EmailStr
 from sqlalchemy.orm import Session
 from sqlalchemy.sql.schema import default_is_clause_element
+from pwdlib import PasswordHash
 from database import Base, engine, SessionLocal
 from models import User
 
 # Create all tables in the database
 Base.metadata.create_all(bind=engine)
+
+# Initialize Argon2 for hashing
+password_hash = PasswordHash.recommended()
 
 app = FastAPI()
 
@@ -37,6 +41,13 @@ class UpdateUsername(BaseModel):
     oldUsername: str
     newUsername: str
 
+def verify_password(plain_password, hashed_password):
+    return password_hash.verify(plain_password, hashed_password)
+
+
+def get_password_hash(password):
+    return password_hash.hash(password)
+
 @app.post("/v1/signup")
 def signup(user: UserSignup, db: Session = Depends(get_db)):
     # Base case 1 : Check if user already exists
@@ -45,7 +56,7 @@ def signup(user: UserSignup, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="User Already Exists")
     
     # Case 2: User doesn't exist so we create a new user 
-    new_user = User(firstname=user.firstname, lastname=user.lastname, username=user.username, email=user.email, password=user.password, phonenumber=user.phonenumber)
+    new_user = User(firstname=user.firstname, lastname=user.lastname, username=user.username, email=user.email, password=get_password_hash(user.password), phonenumber=user.phonenumber)
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
