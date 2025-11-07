@@ -53,7 +53,7 @@ def signup(user: UserSignup, db: Session = Depends(get_db)):
     # Base case 1 : Check if user already exists
     existing_user = db.query(User).filter(User.email == user.email).first()
     if existing_user:
-        raise HTTPException(status_code=400, detail="User Already Exists")
+        raise HTTPException(status_code=400, detail="User Email Already Exists")
     
     # Case 2: User doesn't exist so we create a new user 
     new_user = User(firstname=user.firstname, lastname=user.lastname, username=user.username, email=user.email, password=get_password_hash(user.password), phonenumber=user.phonenumber)
@@ -73,7 +73,7 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail=f"{user.username} does not exist")
 
     # Case 2 User exists & Password is correct
-    if user.password == existing_user.password:
+    if verify_password(user.password, existing_user.password):
         # send login token
         return {"message":"User logged in Successfully", "user":{"name":existing_user.firstname,"email":existing_user.email}}
     # Case 3 user does exists && password is incorrect
