@@ -93,7 +93,7 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
 
 
 # Test APIs -------------------------------------------------------------------------
-@app.delete("/users/{user_email}")
+@app.delete("/users/delete/account/{user_email}")
 def delete(user_email: str, db: Session = Depends(get_db)):
         existing_user = db.query(User).filter(User.email == user_email).first()
         if not existing_user:
