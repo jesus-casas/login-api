@@ -31,11 +31,12 @@ class UserSignup(BaseModel):
     email: EmailStr
     password: str
     
-
+# User Login 
 class UserLogin(BaseModel):
     username: str
     password: str
 
+# Update Username 
 class UpdateUsername(BaseModel):
     userID: int
     oldUsername: str
@@ -43,7 +44,6 @@ class UpdateUsername(BaseModel):
 
 def verify_password(plain_password, hashed_password):
     return password_hash.verify(plain_password, hashed_password)
-
 
 def get_password_hash(password):
     return password_hash.hash(password)
