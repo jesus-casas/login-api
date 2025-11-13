@@ -1,3 +1,4 @@
+import email
 import token
 from fastapi import FastAPI, HTTPException, Depends
 from pydantic import BaseModel, EmailStr
@@ -33,7 +34,7 @@ class UserSignup(BaseModel):
     
 # User Login 
 class UserLogin(BaseModel):
-    username: str
+    email: EmailStr
     password: str
 
 # Update Username 
@@ -48,12 +49,12 @@ def verify_password(plain_password, hashed_password):
 def get_password_hash(password):
     return password_hash.hash(password)
 
-def get_user(db: Session, username: str):
+def get_user(db: Session, email: EmailStr):
     """
-    Retrieve a user record by username.
-    Returns the User instance or None if not found.
+    Retrieve a user record by email
+    Returns the User instance or None if not found
     """
-    return db.query(User).filter(User.username == username).first()
+    return db.query(User).filter(User.email == email).first()
 
 @app.post("/v1/signup")
 def signup(user: UserSignup, db: Session = Depends(get_db)):
@@ -73,11 +74,11 @@ def signup(user: UserSignup, db: Session = Depends(get_db)):
 @app.post("/v1/login")
 def login(user: UserLogin, db: Session = Depends(get_db)):
     
-    existing_user = get_user(db, user.username)
+    existing_user = get_user(db, user.email)
 
     # Base case 1 user does not exist
     if not existing_user:
-        raise HTTPException(status_code=400, detail=f"{user.username} does not exist")
+        raise HTTPException(status_code=400, detail=f"{user.email} does not exist")
 
     # Case 2 User exists & Password is correct
     if verify_password(user.password, existing_user.password):
