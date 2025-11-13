@@ -48,12 +48,19 @@ def verify_password(plain_password, hashed_password):
 def get_password_hash(password):
     return password_hash.hash(password)
 
+def get_user(db: Session, username: str):
+    """
+    Retrieve a user record by username.
+    Returns the User instance or None if not found.
+    """
+    return db.query(User).filter(User.username == username).first()
+
 @app.post("/v1/signup")
 def signup(user: UserSignup, db: Session = Depends(get_db)):
     # Base case 1 : Check if user already exists
     existing_user = db.query(User).filter(User.email == user.email).first()
     if existing_user:
-        raise HTTPException(status_code=400, detail="User Email Already Exists")
+        raise HTTPException(status_code=400, detail="Unable to create your account or user already exists.")
     
     # Case 2: User doesn't exist so we create a new user 
     new_user = User(firstname=user.firstname, lastname=user.lastname, username=user.username, email=user.email, password=get_password_hash(user.password), phonenumber=user.phonenumber)
@@ -66,7 +73,7 @@ def signup(user: UserSignup, db: Session = Depends(get_db)):
 @app.post("/v1/login")
 def login(user: UserLogin, db: Session = Depends(get_db)):
     
-    existing_user = db.query(User).filter(User.username == user.username).first()
+    existing_user = get_user(db, user.username)
 
     # Base case 1 user does not exist
     if not existing_user:
