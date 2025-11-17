@@ -11,3 +11,14 @@ conf = ConnectionConfig(
     MAIL_SSL_TLS=False,
     USE_CREDENTIALS=True
 )
+
+async def send_email(subject: str, email_to: EmailStr, body: str):
+    message = MessageSchema(
+        subject=subject,
+        recipients=[email_to],
+        body=body,
+        subtype="html"  # or "plain"
+    )
+
+    fm = FastMail(conf)
+    await fm.send_message(message)
