@@ -57,6 +57,8 @@ def get_user(db: Session, email: EmailStr):
     """
     return db.query(User).filter(User.email == email).first()
 
+# Signup API ----------------------------------------------------------------------
+
 @app.post("/v1/signup")
 def signup(user: UserSignup, db: Session = Depends(get_db)):
     # Base case 1 : Check if user already exists
@@ -81,6 +83,7 @@ async def send_test_email():
     )
     return {"message": "Email sent"}
 
+# Login API ----------------------------------------------------------------------
 @app.post("/v1/login")
 def login(user: UserLogin, db: Session = Depends(get_db)):
     
@@ -92,7 +95,7 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
 
     # Case 2 User exists & Password is correct
     if verify_password(user.password, existing_user.password):
-        # send login token
+        # send jwt authentication token
         return {"message":"User logged in Successfully", "user":{"name":existing_user.firstname,"email":existing_user.email}}
     # Case 3 user does exists && password is incorrect
     raise HTTPException(status_code=400, detail="Password incorrect")
@@ -101,6 +104,15 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
 
 
            
+
+
+
+
+
+
+
+
+
 
 
 
