@@ -1,6 +1,7 @@
 import email
 import token
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends 
+from email_config import send_email
 from pydantic import BaseModel, EmailStr
 from sqlalchemy.orm import Session
 from sqlalchemy.sql.schema import default_is_clause_element
@@ -56,6 +57,8 @@ def get_user(db: Session, email: EmailStr):
     """
     return db.query(User).filter(User.email == email).first()
 
+# Signup API ----------------------------------------------------------------------
+
 @app.post("/v1/signup")
 def signup(user: UserSignup, db: Session = Depends(get_db)):
     # Base case 1 : Check if user already exists
@@ -71,6 +74,16 @@ def signup(user: UserSignup, db: Session = Depends(get_db)):
 
     return {"message":"User created successfully", "user":{"id":new_user.id, "email": new_user.email}}
 
+@app.post("/send-test-email")
+async def send_test_email():
+    await send_email(
+        subject="Hello from FastAPI",
+        email_to="test@example.com",
+        body="<h1>Your email was sent successfully!</h1>"
+    )
+    return {"message": "Email sent"}
+
+# Login API ----------------------------------------------------------------------
 @app.post("/v1/login")
 def login(user: UserLogin, db: Session = Depends(get_db)):
     
@@ -82,7 +95,7 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
 
     # Case 2 User exists & Password is correct
     if verify_password(user.password, existing_user.password):
-        # send login token
+        # send jwt authentication token
         return {"message":"User logged in Successfully", "user":{"name":existing_user.firstname,"email":existing_user.email}}
     # Case 3 user does exists && password is incorrect
     raise HTTPException(status_code=400, detail="Password incorrect")
@@ -91,6 +104,15 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
 
 
            
+
+
+
+
+
+
+
+
+
 
 
 
