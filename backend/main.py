@@ -1,6 +1,7 @@
 import email
 import token
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends 
+from email_config import send_email
 from pydantic import BaseModel, EmailStr
 from sqlalchemy.orm import Session
 from sqlalchemy.sql.schema import default_is_clause_element
@@ -70,6 +71,15 @@ def signup(user: UserSignup, db: Session = Depends(get_db)):
     db.refresh(new_user)
 
     return {"message":"User created successfully", "user":{"id":new_user.id, "email": new_user.email}}
+
+@app.post("/send-test-email")
+async def send_test_email():
+    await send_email(
+        subject="Hello from FastAPI",
+        email_to="test@example.com",
+        body="<h1>Your email was sent successfully!</h1>"
+    )
+    return {"message": "Email sent"}
 
 @app.post("/v1/login")
 def login(user: UserLogin, db: Session = Depends(get_db)):
