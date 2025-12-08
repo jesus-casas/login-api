@@ -1,7 +1,7 @@
 import email
 import token
 from fastapi import FastAPI, HTTPException, Depends 
-from email_config import send_email
+# from email_config import send_email
 from pydantic import BaseModel, EmailStr
 from sqlalchemy.orm import Session
 from sqlalchemy.sql.schema import default_is_clause_element
